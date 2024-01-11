@@ -46,8 +46,8 @@
             flex: 1 1 auto;
             width: 100%; 
             display: block;
-            height: 60px;
             margin: 10px auto;
+            padding: 15px;
             font-size: 1.5em;
             background-color: #343080; /* Dodger Blue */
             border: none;
@@ -149,7 +149,7 @@
             document.getElementById("fileInput").setAttribute("hidden", "hidden");
             askQuestion();
         };
-        reader.readAsText(file, 'ISO-8859-2');
+        reader.readAsText(file, 'windows-1250');
     });
     function askQuestion() {
         answerGiven = false;
