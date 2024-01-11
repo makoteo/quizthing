@@ -1,0 +1,207 @@
+<html>
+
+<head>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
+
+        #score {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 1em;
+            font-size: 2em;
+            color: #262c4a;
+        }
+
+        body {
+            background-color: #e4eef0; /* Light Blue */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            color: #262c4a;
+        }
+        
+        h1 {
+            /* Make the question text large and centered */
+            font-size: 2.5em;
+            text-align: center;
+            width: 35%;
+            margin-bottom: 20px;
+        }
+        
+        #answers {
+            /* Make the answers div a flex container */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 35%;
+        }
+
+        button {
+            /* Make the buttons flex items */
+            flex: 1 1 auto;
+            width: 100%; 
+            display: block;
+            height: 60px;
+            margin: 10px auto;
+            font-size: 1.5em;
+            background-color: #343080; /* Dodger Blue */
+            border: none;
+            border-radius: 3px;
+            color: white;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button.correct {
+            background-color: #43ed40 !important;
+        }
+
+        button.incorrect {
+            background-color: #ed4040 !important;
+        }
+
+        button:hover {
+            background-color: #6e69cf; /* Cornflower Blue */
+            transform: scale(1.05); /* Make the button 10% larger */
+        }
+
+        #next {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 25%;
+        }
+
+        #answers {
+            /* Add a border above and below the question */
+            border-top: 2px solid #262c4a;
+            border-bottom: 2px solid #262c4a;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="score">Score: 0</div>
+
+    <input type="file" id="fileInput">
+    <h1 id="question"></h1>
+    <div id="answers"></div>
+    <div id="next"><button onclick="askQuestion()">Next</button></div>
+
+    <script>
+    var questions = [];
+    var answerGiven = false;
+    var score = 0;
+
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        var file = e.target.files[0];
+        if (!file) {
+            return;
+        }
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+            var contents = e.target.result;
+            var lines = contents.split('\n');
+            var question = null;
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+                if (line === '') {
+                    // Skip empty lines
+                    continue;
+                }
+                if (line.startsWith('*')) {
+                    // This is an answer
+                    var isCorrect = line.startsWith('* +');
+                    var answer = isCorrect ? line.substring(3) : line.substring(1);
+                    if (question) {
+                        question.answers.push(answer);
+                        if (isCorrect) {
+                            question.correctAnswer = question.answers.length - 1;
+                        }
+                        question.wasAsked = false;
+                    }
+                } else {
+                    // This is a question
+                    if (question) {
+                        // Save the previous question
+                        questions.push(question);
+                    }
+                    question = {
+                        question: line,
+                        answers: [],
+                        correctAnswer: -1
+                    };
+                }
+            }
+            if (question) {
+                // Save the last question
+                questions.push(question);
+            }
+            console.log(questions);
+            document.getElementById("fileInput").setAttribute("hidden", "hidden");
+            askQuestion();
+        };
+        reader.readAsText(file);
+    });
+    function askQuestion() {
+        answerGiven = false;
+        // Get a random question that hasn't been asked yet
+        var question;
+        var answersDiv = document.getElementById('answers');
+
+        if (questions.length == 0) {
+            document.getElementById('question').textContent = "All questions answered. Score: " + score;
+            while (answersDiv.firstChild) {
+                answersDiv.removeChild(answersDiv.firstChild);
+            }
+            return;
+        }
+
+        question = questions[Math.floor(Math.random() * questions.length)];
+
+        // Display the question
+        document.getElementById('question').textContent = question.question;
+
+        // Remove any existing answer buttons
+        while (answersDiv.firstChild) {
+            answersDiv.removeChild(answersDiv.firstChild);
+        }
+
+        // Shuffle the answers
+        var correctAnswer = question.answers[question.correctAnswer];
+        question.answers.sort(() => Math.random() - 0.5);
+        question.correctAnswer = question.answers.indexOf(correctAnswer);
+
+        // Create new answer buttons
+        for (var i = 0; i < question.answers.length; i++) {
+            var button = document.createElement('button');
+            button.textContent = question.answers[i];
+            button.onclick = function() {
+                // Check if the answer is correct
+                if (this.textContent === question.answers[question.correctAnswer]) {
+                    this.className = 'correct';
+                    if (!answerGiven) score++;
+                    answerGiven = true;
+                } else {
+                    this.className = 'incorrect';
+                    answerGiven = true;
+                }
+                document.getElementById('score').textContent = 'Score: ' + score;
+            };
+            answersDiv.appendChild(button);
+        }
+
+        questions.splice(questions.indexOf(question), 1);
+    }
+    </script>
+</body>
+
+</html>
