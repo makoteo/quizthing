@@ -117,9 +117,9 @@
                     // Skip empty lines
                     continue;
                 }
-                if (line.startsWith('*')) {
+                if (line.startsWith('-')) {
                     // This is an answer
-                    var isCorrect = line.startsWith('* +');
+                    var isCorrect = line.startsWith('- +');
                     var answer = isCorrect ? line.substring(3) : line.substring(1);
                     if (question) {
                         question.answers.push(answer);
@@ -149,7 +149,7 @@
             document.getElementById("fileInput").setAttribute("hidden", "hidden");
             askQuestion();
         };
-        reader.readAsText(file);
+        reader.readAsText(file, 'ISO-8859-2');
     });
     function askQuestion() {
         answerGiven = false;
