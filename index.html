@@ -1,8 +1,10 @@
 <html>
 
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap');
 
         #score {
             position: absolute;
@@ -22,14 +24,16 @@
             height: 100vh;
             margin: 0;
             font-family: 'Roboto', sans-serif;
+            font-weight: 700;
             color: #262c4a;
         }
         
         h1 {
             /* Make the question text large and centered */
             font-size: 2.5em;
+            font-weight: 700;
             text-align: center;
-            width: 35%;
+            width: 50%;
             margin-bottom: 20px;
         }
         
@@ -38,7 +42,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 35%;
+            width: 40%;
         }
 
         button {
@@ -46,9 +50,10 @@
             flex: 1 1 auto;
             width: 100%; 
             display: block;
-            height: 60px;
             margin: 10px auto;
+            padding: 15px;
             font-size: 1.5em;
+            font-weight: 300;
             background-color: #343080; /* Dodger Blue */
             border: none;
             border-radius: 3px;
@@ -99,6 +104,7 @@
     var questions = [];
     var answerGiven = false;
     var score = 0;
+    var totalScore = 0;
 
     document.getElementById('fileInput').addEventListener('change', function(e) {
         var file = e.target.files[0];
@@ -117,14 +123,15 @@
                     // Skip empty lines
                     continue;
                 }
-                if (line.startsWith('*')) {
+                if (line.startsWith('-')) {
                     // This is an answer
-                    var isCorrect = line.startsWith('* +');
+                    var isCorrect = line.startsWith('- +');
                     var answer = isCorrect ? line.substring(3) : line.substring(1);
                     if (question) {
                         question.answers.push(answer);
                         if (isCorrect) {
                             question.correctAnswer = question.answers.length - 1;
+                            totalScore++;
                         }
                         question.wasAsked = false;
                     }
@@ -149,7 +156,7 @@
             document.getElementById("fileInput").setAttribute("hidden", "hidden");
             askQuestion();
         };
-        reader.readAsText(file);
+        reader.readAsText(file, 'windows-1250');
     });
     function askQuestion() {
         answerGiven = false;
@@ -158,7 +165,7 @@
         var answersDiv = document.getElementById('answers');
 
         if (questions.length == 0) {
-            document.getElementById('question').textContent = "All questions answered. Score: " + score;
+            document.getElementById('question').textContent = "All questions answered. Score: " + score + "/" + totalScore;
             while (answersDiv.firstChild) {
                 answersDiv.removeChild(answersDiv.firstChild);
             }
