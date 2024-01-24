@@ -117,15 +117,36 @@
             var contents = e.target.result;
             var lines = contents.split('\n');
             var question = null;
+            var commenting = false;
+			var askingQue = true;
             for (var i = 0; i < lines.length; i++) {
-                var line = lines[i].trim();
-                if (line === '') {
+                var line = lines[i].trim() + " ";
+				if (line === '###') {
+                    commenting = !commenting;
+                    continue;
+                }
+
+                if (line === '' || commenting) {
                     // Skip empty lines
                     continue;
                 }
-                if (line.startsWith('-')) {
+				
+				if (!(line.startsWith('-')) && !(line.startsWith('*'))) {
+					askingQue = true;
+				}
+				
+				if (askingQue) {
+					for (var j = i + 1; j < lines.length; j++) {
+						var trimmed = lines[j].trim();
+						if (!(trimmed.startsWith('-')) && !(trimmed.startsWith('*'))){ line += trimmed + " ";}
+						else {i = j - 1; break;}
+					}
+				}
+				
+                if (line.startsWith('-') || line.startsWith('*')) {
+					askingQue = false;
                     // This is an answer
-                    var isCorrect = line.startsWith('- +');
+                    var isCorrect = line.startsWith('- +') || line.startsWith('* +');
                     var answer = isCorrect ? line.substring(3) : line.substring(1);
                     if (question) {
                         question.answers.push(answer);
