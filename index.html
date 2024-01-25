@@ -144,10 +144,14 @@
 				}
 				
                 if (line.startsWith('-') || line.startsWith('*')) {
+					line = line.substring(1);
+					line = line.trim();
 					askingQue = false;
                     // This is an answer
-                    var isCorrect = line.startsWith('- +') || line.startsWith('* +');
-                    var answer = isCorrect ? line.substring(3) : line.substring(1);
+                    var isCorrect = line.startsWith('+');
+					
+                    var answer = isCorrect ? line.substring(1).trim() : line.trim();
+					// answer = line.substring(1).trim();
                     if (question) {
                         question.answers.push(answer);
                         if (isCorrect) {
